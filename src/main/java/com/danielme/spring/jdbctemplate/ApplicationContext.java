@@ -18,7 +18,7 @@ import com.mchange.v2.c3p0.ComboPooledDataSource;
 @PropertySource("classpath:db.properties")
 @ComponentScan("com.danielme.spring")
 public class ApplicationContext {
-    
+
     @Bean(destroyMethod = "close")
     DataSource dataSource(Environment env) {
         ComboPooledDataSource ds = new ComboPooledDataSource();
@@ -35,20 +35,20 @@ public class ApplicationContext {
         ds.setMinPoolSize(env.getRequiredProperty("c3p0.min_size", Integer.class));
         ds.setMaxPoolSize(env.getRequiredProperty("c3p0.max_size", Integer.class));
         ds.setMaxIdleTime(env.getRequiredProperty("c3p0.max_idle_time", Integer.class));
-        ds.setUnreturnedConnectionTimeout(env.getRequiredProperty(
-                "c3p0.unreturned_connection_timeout", Integer.class));
+        ds.setUnreturnedConnectionTimeout(
+                env.getRequiredProperty("c3p0.unreturned_connection_timeout", Integer.class));
 
         return ds;
     }
-    
+
     @Bean
     JdbcTemplate jdbcTemplate(DataSource dataSource) {
-        return new JdbcTemplate(dataSource);        
+        return new JdbcTemplate(dataSource);
     }
-    
+
     @Bean
     DataSourceTransactionManager dataSourceTransactionManager(DataSource dataSource) {
-    	return new DataSourceTransactionManager(dataSource);
-    }   
+        return new DataSourceTransactionManager(dataSource);
+    }
 
 }

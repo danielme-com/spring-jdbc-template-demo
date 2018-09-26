@@ -22,109 +22,111 @@ import org.springframework.stereotype.Repository;
 @Repository
 public class CountryDao {
 
-	private static final Logger logger = LogManager.getLogger(CountryDao.class);
+    private static final Logger logger = LogManager.getLogger(CountryDao.class);
 
-	private final JdbcTemplate jdbcTemplate;
+    private final JdbcTemplate jdbcTemplate;
 
-	public CountryDao(JdbcTemplate jdbcTemplate) {
-		this.jdbcTemplate = jdbcTemplate;
-	}
+    public CountryDao(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
+    }
 
-	public List<Country> findAllPureJdbc() {
-		List<Country> results = new LinkedList<>();
-		Connection connection = null;
-		PreparedStatement preparedStatement = null;
-		try {
-			connection = jdbcTemplate.getDataSource().getConnection();
-			preparedStatement = connection.prepareStatement("SELECT * FROM country");
-			ResultSet resultSet = preparedStatement.executeQuery();
-			while (resultSet.next()) {
-				Country country = new Country(resultSet.getLong("id"), resultSet.getString("name"),
-						resultSet.getInt("population"));
+    public List<Country> findAllPureJdbc() {
+        List<Country> results = new LinkedList<>();
+        Connection connection = null;
+        PreparedStatement preparedStatement = null;
+        try {
+            connection = jdbcTemplate.getDataSource().getConnection();
+            preparedStatement = connection.prepareStatement("SELECT * FROM country");
+            ResultSet resultSet = preparedStatement.executeQuery();
+            while (resultSet.next()) {
+                Country country = new Country(resultSet.getLong("id"), resultSet.getString("name"),
+                        resultSet.getInt("population"));
 
-				results.add(country);
-			}
-		} catch (SQLException ex) {
-			logger.error(ex);
-			throw new RuntimeException(ex);
-		} finally {
-			if (preparedStatement != null) {
-				try {
-					preparedStatement.close();
-				} catch (SQLException ex) {
-					logger.warn(ex);
-				}
-			}
-			if (connection != null) {
-				try {
-					connection.close();
-				} catch (SQLException ex) {
-					logger.warn(ex);
-				}
-			}
-		}
+                results.add(country);
+            }
+        } catch (SQLException ex) {
+            logger.error(ex);
+            throw new RuntimeException(ex);
+        } finally {
+            if (preparedStatement != null) {
+                try {
+                    preparedStatement.close();
+                } catch (SQLException ex) {
+                    logger.warn(ex);
+                }
+            }
+            if (connection != null) {
+                try {
+                    connection.close();
+                } catch (SQLException ex) {
+                    logger.warn(ex);
+                }
+            }
+        }
 
-		return results;
-	}
+        return results;
+    }
 
-	public List<Country> findAll() {
-		return jdbcTemplate.query("SELECT * FROM country", new CountryRowMapper());
-	}
+    public List<Country> findAll() {
+        return jdbcTemplate.query("SELECT * FROM country", new CountryRowMapper());
+    }
 
-	public List<Country> findByName(String name) {
-		return jdbcTemplate.query("SELECT * FROM country WHERE name LIKE ?", new Object[] { name },
-				new CountryRowMapper());
-	}
+    public List<Country> findByName(String name) {
+        return jdbcTemplate.query("SELECT * FROM country WHERE name LIKE ?", new Object[] { name },
+                new CountryRowMapper());
+    }
 
-	public Country findById(Long id) {
-		return jdbcTemplate.queryForObject("SELECT * FROM country WHERE id = ?", new Object[] { id },
-				new CountryRowMapper());
-	}
+    public Country findById(Long id) {
+        return jdbcTemplate.queryForObject("SELECT * FROM country WHERE id = ?",
+                new Object[] { id }, new CountryRowMapper());
+    }
 
-	public int count() {
-		return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM country", Integer.class);
-	}
+    public int count() {
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM country", Integer.class);
+    }
 
-	public int deleteAll() {
-		return jdbcTemplate.update("DELETE from country");
-	}
+    public int deleteAll() {
+        return jdbcTemplate.update("DELETE from country");
+    }
 
-	public void insertWithQuery(String name, int population) {
-		jdbcTemplate.update("INSERT INTO country (name, population) VALUES(?,?)", name, population);
-	}
+    public void insertWithQuery(String name, int population) {
+        jdbcTemplate.update("INSERT INTO country (name, population) VALUES(?,?)", name, population);
+    }
 
-	public long insert(String name, int population) {
-		SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource()).withTableName("country")
-				.usingGeneratedKeyColumns("id");
+    public long insert(String name, int population) {
+        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+                .withTableName("country").usingGeneratedKeyColumns("id");
 
-		Map<String, Object> parameters = new HashMap<>();
-		parameters.put("name", name);
-		parameters.put("population", population);
-		return simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
-	}
+        Map<String, Object> parameters = new HashMap<>();
+        parameters.put("name", name);
+        parameters.put("population", population);
+        return simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+    }
 
-	public Integer callProcedure(String name) {
-		SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withProcedureName("search");
+    public Integer callProcedure(String name) {
+        SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                .withProcedureName("search");
 
-		SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
+        SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
 
-		Map<String, Object> out = simpleJdbcCall.execute(in);
-		return (Integer) out.get("total");
-	}
+        Map<String, Object> out = simpleJdbcCall.execute(in);
+        return (Integer) out.get("total");
+    }
 
-	public Integer callFunction(String name) {
-		SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate).withFunctionName("search2");
+    public Integer callFunction(String name) {
+        SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
+                .withFunctionName("search2");
 
-		SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
+        SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
 
-		return simpleJdbcCall.executeFunction(Integer.class, in);
-	}
+        return simpleJdbcCall.executeFunction(Integer.class, in);
+    }
 
-	private static class CountryRowMapper implements RowMapper<Country> {
-		@Override
-		public Country mapRow(ResultSet rs, int rowNum) throws SQLException {
-			return new Country(rs.getLong("id"), rs.getString("name"), rs.getInt("population"));
-		}
-	}
+    private static class CountryRowMapper implements RowMapper<Country> {
+        @Override
+        public Country mapRow(ResultSet rs, int rowNum) throws SQLException {
+            return new Country(rs.getLong("id"), rs.getString("name"), rs.getInt("population"));
+        }
+    }
 
 }

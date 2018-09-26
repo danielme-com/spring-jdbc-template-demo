@@ -4,7 +4,7 @@ public class Country {
 
     private Long id;
     private String name;
-    private Integer population;    
+    private Integer population;
 
     public Country(Long id, String name, Integer population) {
         super();

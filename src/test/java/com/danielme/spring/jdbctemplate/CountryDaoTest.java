@@ -19,6 +19,11 @@ import com.danielme.spring.jdbctemplate.CountryDao;
 @Sql("reset.sql")
 public class CountryDaoTest {
 
+    private static final String SPAIN_NAME = "Spain";
+    private static final String TEST_NAME = "test";
+    private static final String FUNC_PROC_NAME = "test";
+    private static final Long SPAIN_ID = 2L;
+
     @Autowired
     private CountryDao countryDao;
 
@@ -34,37 +39,38 @@ public class CountryDaoTest {
 
     @Test
     public void testInsertQuery() {
-        countryDao.insertWithQuery("test", 123456);
+        countryDao.insertWithQuery(TEST_NAME, 123456);
         assertEquals(4, countryDao.findAll().size());
     }
 
     @Test
     public void testInsert() {
-        assertEquals(countryDao.insert("test", 123456), (long) countryDao.findByName("test").get(0)
-                .getId());
+        assertEquals(countryDao.insert(TEST_NAME, 123456),
+                (long) countryDao.findByName(TEST_NAME).get(0).getId());
     }
 
     @Test
-    public void testFind() {
-        List<Country> list = countryDao.findByName("Spain");
+    public void testFindByName() {
+        List<Country> list = countryDao.findByName(SPAIN_NAME);
         assertEquals(1, list.size());
-        assertEquals("Spain", list.get(0).getName());
+        assertEquals(SPAIN_NAME, list.get(0).getName());
     }
-    
+
     @Test
     public void testFindById() {
-    	List<Country> list = countryDao.findByName("Spain");    	
-        assertEquals("Spain", countryDao.findById(list.get(0).getId()).getName());
+        Country country = countryDao.findById(SPAIN_ID);
+        assertNotNull(country);
+        assertEquals(SPAIN_NAME, country.getName());
     }
 
     @Test
     public void testProcedure() {
-        assertEquals(0, (int) countryDao.callProcedure("test"));
+        assertEquals(0, (int) countryDao.callProcedure(FUNC_PROC_NAME));
     }
-    
+
     @Test
     public void testFunction() {
-        assertEquals(0, (int) countryDao.callFunction("test"));
+        assertEquals(0, (int) countryDao.callFunction(FUNC_PROC_NAME));
     }
 
     @Test

@@ -6,7 +6,7 @@
 	<version>1.0</version>
 	<name>jdbc-template</name>
 	<packaging>jar</packaging>
-	<url></url>
+	<url>https://danielme.com/2017/10/02/spring-jdbc-template-simplificando-el-uso-de-sql/</url>
 	<inceptionYear>2017</inceptionYear>
 
 	<description>Spring jdbctemplate demo</description>
@@ -16,7 +16,7 @@
 		<java.version>1.8</java.version>
 		<maven.version>3.0</maven.version>
 		
-		<spring.version>4.3.11.RELEASE</spring.version>		
+		<spring.version>4.3.19.RELEASE</spring.version>		
 		<c3p0.version>0.9.1.2</c3p0.version>
 		<log4jframework.version>2.5</log4jframework.version>
 		<mysql.driver.version>5.1.43</mysql.driver.version>

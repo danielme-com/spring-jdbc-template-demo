@@ -16,7 +16,7 @@ import com.danielme.spring.jdbctemplate.CountryDao;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(classes = { ApplicationContext.class })
-@Sql("reset.sql")
+@Sql("/reset.sql")
 public class CountryDaoTest {
 
     private static final String SPAIN_NAME = "Spain";

@@ -93,6 +93,17 @@ public class CountryDao {
         jdbcTemplate.update("INSERT INTO country (name, population) VALUES(?,?)", name, population);
     }
 
+    public void insertBatch(List<Country> countries, int batchSize) {
+        String sql = "INSERT INTO country (name, population) VALUES(?,?)";
+
+        jdbcTemplate.batchUpdate(sql, countries, batchSize,
+                (PreparedStatement ps, Country country) -> {
+                    ps.setString(1, country.getName());
+                    ps.setInt(2, country.getPopulation());
+                }
+        );
+    }
+
     public long insert(String name, int population) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
                 .withTableName("country").usingGeneratedKeyColumns("id");

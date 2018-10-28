@@ -2,6 +2,7 @@ package com.danielme.spring.jdbctemplate;
 
 import static org.junit.Assert.*;
 
+import java.util.LinkedList;
 import java.util.List;
 
 import org.junit.Test;
@@ -40,7 +41,7 @@ public class CountryDaoTest {
     @Test
     public void testInsertQuery() {
         countryDao.insertWithQuery(TEST_NAME, 123456);
-        assertEquals(4, countryDao.findAll().size());
+        assertEquals(4, countryDao.count());
     }
 
     @Test
@@ -74,8 +75,26 @@ public class CountryDaoTest {
     }
 
     @Test
-    public void count() {
+    public void testCount() {
         assertEquals(3, countryDao.count());
+    }
+
+    @Test
+    public void testBatchInsert() {
+        int quantity = 500;
+        List<Country> countries = buildCountriesList(quantity);
+        long init = System.currentTimeMillis();
+        countryDao.insertBatch(countries, 100);
+        assertEquals(quantity + 3, countryDao.count());
+        System.out.println(System.currentTimeMillis() - init + " ms");
+    }
+
+    private List<Country> buildCountriesList(int quantity) {
+        List<Country> countries = new LinkedList<Country>();
+        for (int i = 0; i < quantity; i++) {
+            countries.add(new Country(String.valueOf(i), i));
+        }
+        return countries;
     }
 
 }

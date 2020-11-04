@@ -16,54 +16,19 @@
 		<java.version>1.8</java.version>
 		<maven.version>3.0</maven.version>
 		
-		<spring.version>4.3.19.RELEASE</spring.version>		
+		<spring.version>5.3.0</spring.version>
 		<c3p0.version>0.9.1.2</c3p0.version>
 		<log4jframework.version>2.5</log4jframework.version>
-		<mysql.driver.version>5.1.43</mysql.driver.version>
-		<junit.version>4.12</junit.version>		
-
-		<enforcer.plugin>1.4.1</enforcer.plugin>
+		<mysql.driver.version>8.0.22</mysql.driver.version>
+		<junit.version>4.13.1</junit.version>
 		<maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
-		<maven.jar.plugin.version>3.0.2</maven.jar.plugin.version>
 	</properties>
-
-
-	<developers>
-		<developer>
-			<id>dmedina</id>
-			<name>Daniel Medina</name>
-			<email>danielme_com@yahoo.com</email>
-			<url>http://danielme.com</url>
-			<roles>
-				<role>developer</role>
-			</roles>
-		</developer>
-	</developers>
-
-	<licenses>
-		<license>
-			<name>GPL 3</name>
-			<url>http://www.gnu.org/licenses/gpl-3.0.html</url>
-		</license>
-	</licenses>
 
 
 	<build>
 		<pluginManagement>
 			<plugins>
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-jar-plugin</artifactId>
-					<version>${maven.jar.plugin.version}</version>
-					<configuration>
-						<archive>
-							<manifest>
-								<addClasspath>true</addClasspath>
-								<mainClass>${project.build.mainClass}</mainClass>
-							</manifest>
-						</archive>
-					</configuration>
-				</plugin>
+
 				<plugin>
 					<groupId>org.apache.maven.plugins</groupId>
 					<artifactId>maven-compiler-plugin</artifactId>
@@ -73,30 +38,6 @@
 						<target>${java.version}</target>
 						<encoding>${project.build.sourceEncoding}</encoding>
 					</configuration>
-				</plugin>
-
-				<plugin>
-					<groupId>org.apache.maven.plugins</groupId>
-					<artifactId>maven-enforcer-plugin</artifactId>
-					<version>${enforcer.plugin}</version>
-					<executions>
-						<execution>
-							<id>enforce-java</id>
-							<goals>
-								<goal>enforce</goal>
-							</goals>
-							<configuration>
-								<rules>
-									<requireJavaVersion>
-										<version>${java.version}</version>
-									</requireJavaVersion>
-									<requireMavenVersion>
-										<version>${maven.version}</version>
-									</requireMavenVersion>
-								</rules>
-							</configuration>
-						</execution>
-					</executions>
 				</plugin>
 
 			</plugins>

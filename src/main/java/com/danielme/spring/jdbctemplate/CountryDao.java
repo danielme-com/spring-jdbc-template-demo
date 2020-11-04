@@ -1,14 +1,5 @@
 package com.danielme.spring.jdbctemplate;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
@@ -18,6 +9,15 @@ import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 
 @Repository
 public class CountryDao {
@@ -72,13 +72,13 @@ public class CountryDao {
     }
 
     public List<Country> findByName(String name) {
-        return jdbcTemplate.query("SELECT * FROM country WHERE name LIKE ?", new Object[] { name },
-                new CountryRowMapper());
+        return jdbcTemplate.query("SELECT * FROM country WHERE name LIKE ?",
+                new CountryRowMapper(), name);
     }
 
     public Country findById(Long id) {
         return jdbcTemplate.queryForObject("SELECT * FROM country WHERE id = ?",
-                new Object[] { id }, new CountryRowMapper());
+                new CountryRowMapper(), id);
     }
 
     public int count() {

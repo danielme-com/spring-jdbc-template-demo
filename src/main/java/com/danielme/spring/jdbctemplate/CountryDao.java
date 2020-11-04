@@ -14,10 +14,7 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Repository
 public class CountryDao {
@@ -30,23 +27,17 @@ public class CountryDao {
         this.jdbcTemplate = jdbcTemplate;
     }
 
-    public List<Country> findAllPureJdbc() {
-        List<Country> results = new LinkedList<>();
+    public List<Country> findAllPureJdbc() throws SQLException {
         Connection connection = null;
         PreparedStatement preparedStatement = null;
         try {
             connection = jdbcTemplate.getDataSource().getConnection();
             preparedStatement = connection.prepareStatement("SELECT * FROM country");
             ResultSet resultSet = preparedStatement.executeQuery();
-            while (resultSet.next()) {
-                Country country = new Country(resultSet.getLong("id"), resultSet.getString("name"),
-                        resultSet.getInt("population"));
-
-                results.add(country);
-            }
+            return mapResults(resultSet);
         } catch (SQLException ex) {
             logger.error(ex);
-            throw new RuntimeException(ex);
+            throw ex;
         } finally {
             if (preparedStatement != null) {
                 try {
@@ -63,7 +54,15 @@ public class CountryDao {
                 }
             }
         }
+    }
 
+    private List<Country> mapResults(ResultSet resultSet) throws SQLException {
+        List<Country> results = new ArrayList<>();
+        while (resultSet.next()) {
+            Country country = new Country(resultSet.getLong("id"), resultSet.getString("name"),
+                    resultSet.getInt("population"));
+            results.add(country);
+        }
         return results;
     }
 

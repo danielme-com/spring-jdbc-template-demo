@@ -28,72 +28,60 @@ public class CountryDao {
     }
 
     public List<Country> findAllPureJdbc() throws SQLException {
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;
-        try {
-            connection = jdbcTemplate.getDataSource().getConnection();
-            preparedStatement = connection.prepareStatement("SELECT * FROM country");
-            ResultSet resultSet = preparedStatement.executeQuery();
+        try (Connection connection = jdbcTemplate.getDataSource().getConnection();
+             PreparedStatement ps = connection.prepareStatement("SELECT * FROM countries");) {
+            ResultSet resultSet = ps.executeQuery();
             return mapResults(resultSet);
         } catch (SQLException ex) {
             logger.error(ex);
             throw ex;
-        } finally {
-            if (preparedStatement != null) {
-                try {
-                    preparedStatement.close();
-                } catch (SQLException ex) {
-                    logger.warn(ex);
-                }
-            }
-            if (connection != null) {
-                try {
-                    connection.close();
-                } catch (SQLException ex) {
-                    logger.warn(ex);
-                }
-            }
         }
     }
 
     private List<Country> mapResults(ResultSet resultSet) throws SQLException {
         List<Country> results = new ArrayList<>();
         while (resultSet.next()) {
-            Country country = new Country(resultSet.getLong("id"), resultSet.getString("name"),
-                    resultSet.getInt("population"));
+            Country country = mapResult(resultSet);
             results.add(country);
         }
         return results;
     }
 
+    private Country mapResult(ResultSet resultSet) throws SQLException {
+        return new Country(
+                resultSet.getLong("id"),
+                resultSet.getString("name"),
+                resultSet.getInt("population"));
+    }
+
     public List<Country> findAll() {
-        return jdbcTemplate.query("SELECT * FROM country", new CountryRowMapper());
+        return jdbcTemplate.query("SELECT * FROM countries", new CountryRowMapper());
     }
 
     public List<Country> findByName(String name) {
-        return jdbcTemplate.query("SELECT * FROM country WHERE name LIKE ?",
+        return jdbcTemplate.query("SELECT * FROM countries WHERE name LIKE ?",
                 new CountryRowMapper(), name);
     }
 
     public Country findById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM country WHERE id = ?",
+        return jdbcTemplate.queryForObject("SELECT * FROM countries WHERE id = ?",
                 new CountryRowMapper(), id);
     }
 
     public int count() {
-        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM country", Integer.class);
+        return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM countries", Integer.class);
     }
 
     public int deleteAll() {
-        return jdbcTemplate.update("DELETE from country");
+        return jdbcTemplate.update("DELETE from countries");
     }
 
     public void insertWithQuery(String name, int population) {
-        jdbcTemplate.update("INSERT INTO country (name, population) VALUES(?,?)", name, population);
+        jdbcTemplate.update("INSERT INTO countries (name, population) VALUES(?,?)", name, population);
     }
 
     public void insertBatch(List<Country> countries, int batchSize) {
-        String sql = "INSERT INTO country (name, population) VALUES(?,?)";
+        String sql = "INSERT INTO countries (name, population) VALUES(?,?)";
 
         jdbcTemplate.batchUpdate(sql, countries, batchSize,
                 (PreparedStatement ps, Country country) -> {
@@ -105,7 +93,7 @@ public class CountryDao {
 
     public long insert(String name, int population) {
         SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                .withTableName("country").usingGeneratedKeyColumns("id");
+                .withTableName("countries").usingGeneratedKeyColumns("id");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);

@@ -8,6 +8,7 @@ import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
 import org.springframework.core.env.Environment;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 
 import javax.sql.DataSource;
@@ -15,7 +16,7 @@ import javax.sql.DataSource;
 @Configuration
 @PropertySource("classpath:db.properties")
 @ComponentScan("com.danielme.spring")
-public class ApplicationContext {
+public class AppConfiguration {
 
     @Bean(destroyMethod = "close")
     DataSource dataSource(Environment env) {
@@ -30,6 +31,11 @@ public class ApplicationContext {
     @Bean
     JdbcTemplate jdbcTemplate(DataSource dataSource) {
         return new JdbcTemplate(dataSource);
+    }
+
+    @Bean
+    NamedParameterJdbcTemplate namedParameterJdbcTemplate(DataSource dataSource) {
+        return new NamedParameterJdbcTemplate(dataSource);
     }
 
     @Bean

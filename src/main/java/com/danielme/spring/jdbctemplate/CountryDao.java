@@ -1,10 +1,8 @@
 package com.danielme.spring.jdbctemplate;
 
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
@@ -19,12 +17,12 @@ import java.util.*;
 @Repository
 public class CountryDao {
 
-    private static final Logger logger = LogManager.getLogger(CountryDao.class);
-
     private final JdbcTemplate jdbcTemplate;
+    private final NamedParameterJdbcTemplate namedParameterJdbcTemplate;
 
-    public CountryDao(JdbcTemplate jdbcTemplate) {
+    public CountryDao(JdbcTemplate jdbcTemplate, NamedParameterJdbcTemplate namedParameterJdbcTemplate) {
         this.jdbcTemplate = jdbcTemplate;
+        this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
     public List<Country> findAllPureJdbc() throws SQLException {
@@ -32,40 +30,41 @@ public class CountryDao {
              PreparedStatement ps = connection.prepareStatement("SELECT * FROM countries");) {
             ResultSet resultSet = ps.executeQuery();
             return mapResults(resultSet);
-        } catch (SQLException ex) {
-            logger.error(ex);
-            throw ex;
         }
     }
 
     private List<Country> mapResults(ResultSet resultSet) throws SQLException {
         List<Country> results = new ArrayList<>();
         while (resultSet.next()) {
-            Country country = mapResult(resultSet);
+            Country country = mapToCountry(resultSet);
             results.add(country);
         }
         return results;
     }
 
-    private Country mapResult(ResultSet resultSet) throws SQLException {
-        return new Country(
-                resultSet.getLong("id"),
-                resultSet.getString("name"),
-                resultSet.getInt("population"));
-    }
-
     public List<Country> findAll() {
-        return jdbcTemplate.query("SELECT * FROM countries", new CountryRowMapper());
+        return jdbcTemplate.query("SELECT * FROM countries ORDER BY NAME", (rs, rowNum) -> mapToCountry(rs));
     }
 
     public List<Country> findByName(String name) {
         return jdbcTemplate.query("SELECT * FROM countries WHERE name LIKE ?",
-                new CountryRowMapper(), name);
+                (rs, rowNum) -> mapToCountry(rs), name);
     }
 
-    public Country findById(Long id) {
-        return jdbcTemplate.queryForObject("SELECT * FROM countries WHERE id = ?",
-                new CountryRowMapper(), id);
+    public Optional<Country> findById(Long id) {
+        Country country = jdbcTemplate.queryForObject("SELECT * FROM countries WHERE id = ?",
+                (rs, rowNum) -> mapToCountry(rs), id);
+        return Optional.ofNullable(country);
+    }
+
+    public List<Country> findByPopulation(int minPopulation, int maxPopulation) {
+        Map<String, Integer> params = new HashMap<>();
+        params.put("minPopulation", minPopulation);
+        params.put("maxPopulation", maxPopulation);
+        return namedParameterJdbcTemplate.query("SELECT * FROM countries WHERE population " +
+                        "BETWEEN :minPopulation AND :maxPopulation ORDER BY name",
+                params,
+                (rs, rowNum) -> mapToCountry(rs));
     }
 
     public int count() {
@@ -91,9 +90,11 @@ public class CountryDao {
         );
     }
 
-    public long insert(String name, int population) {
-        SimpleJdbcInsert simpleJdbcInsert = new SimpleJdbcInsert(jdbcTemplate.getDataSource())
-                .withTableName("countries").usingGeneratedKeyColumns("id");
+    public long insertWithSimpleJdbcInsert(String name, int population) {
+        SimpleJdbcInsert simpleJdbcInsert =
+                new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+                        .withTableName("countries")
+                        .usingGeneratedKeyColumns("id");
 
         Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
@@ -104,9 +105,7 @@ public class CountryDao {
     public Integer callProcedure(String name) {
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withProcedureName("search");
-
         SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
-
         Map<String, Object> out = simpleJdbcCall.execute(in);
         return (Integer) out.get("total");
     }
@@ -114,17 +113,22 @@ public class CountryDao {
     public Integer callFunction(String name) {
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
                 .withFunctionName("search2");
-
         SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
-
         return simpleJdbcCall.executeFunction(Integer.class, in);
     }
 
-    private static class CountryRowMapper implements RowMapper<Country> {
+    /*private static class CountryRowMapper implements RowMapper<Country> {
         @Override
         public Country mapRow(ResultSet rs, int rowNum) throws SQLException {
             return new Country(rs.getLong("id"), rs.getString("name"), rs.getInt("population"));
         }
+    }*/
+
+    private Country mapToCountry(ResultSet rs) throws SQLException {
+        return new Country(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getInt("population"));
     }
 
 }

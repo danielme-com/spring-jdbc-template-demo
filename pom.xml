@@ -18,7 +18,7 @@
 		<hikari.version>3.4.5</hikari.version>
 		<spring.version>5.3.22</spring.version>
 		<log4jframework.version>2.18.0</log4jframework.version>
-		<mysql.driver.version>8.0.22</mysql.driver.version>
+		<mysql.driver.version>8.0.29</mysql.driver.version>
 		<junit.version>4.13.2</junit.version>
 		<maven.compiler.plugin.version>3.6.1</maven.compiler.plugin.version>
 	</properties>

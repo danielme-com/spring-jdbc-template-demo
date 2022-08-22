@@ -58,13 +58,12 @@ public class CountryDao {
     }
 
     public List<Country> findByPopulation(int minPopulation, int maxPopulation) {
+        String sql = "SELECT * FROM countries WHERE population " +
+                "BETWEEN :minPopulation AND :maxPopulation ORDER BY name";
         Map<String, Integer> params = new HashMap<>();
         params.put("minPopulation", minPopulation);
         params.put("maxPopulation", maxPopulation);
-        return namedParameterJdbcTemplate.query("SELECT * FROM countries WHERE population " +
-                        "BETWEEN :minPopulation AND :maxPopulation ORDER BY name",
-                params,
-                (rs, rowNum) -> mapToCountry(rs));
+        return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> mapToCountry(rs));
     }
 
     public int count() {
@@ -76,7 +75,8 @@ public class CountryDao {
     }
 
     public void insertWithQuery(String name, int population) {
-        jdbcTemplate.update("INSERT INTO countries (name, population) VALUES(?,?)", name, population);
+        String sql = "INSERT INTO countries (name, population) VALUES(?,?)";
+        jdbcTemplate.update(sql, name, population);
     }
 
     public void insertBatch(List<Country> countries, int batchSize) {

@@ -104,7 +104,7 @@ public class CountryDao {
 
     public Integer callProcedure(String name) {
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                .withProcedureName("search");
+                .withProcedureName("proc_count_countries_by_name");
         SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
         Map<String, Object> out = simpleJdbcCall.execute(in);
         return (Integer) out.get("total");
@@ -112,7 +112,7 @@ public class CountryDao {
 
     public Integer callFunction(String name) {
         SimpleJdbcCall simpleJdbcCall = new SimpleJdbcCall(jdbcTemplate)
-                .withFunctionName("search2");
+                .withFunctionName("func_count_countries_by_name");
         SqlParameterSource in = new MapSqlParameterSource().addValue("name", name);
         return simpleJdbcCall.executeFunction(Integer.class, in);
     }

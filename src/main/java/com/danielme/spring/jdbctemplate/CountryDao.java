@@ -1,6 +1,7 @@
 package com.danielme.spring.jdbctemplate;
 
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
 import org.springframework.jdbc.core.namedparam.SqlParameterSource;
@@ -8,10 +9,7 @@ import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
+import java.sql.*;
 import java.util.*;
 
 @Repository
@@ -66,6 +64,13 @@ public class CountryDao {
         return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> mapToCountry(rs));
     }
 
+    public List<Country> findByPopulation(CountryQuery countryQuery) {
+        String sql = "SELECT * FROM countries WHERE population " +
+                "BETWEEN :minPopulation AND :maxPopulation ORDER BY name";
+        SqlParameterSource params = new BeanPropertySqlParameterSource(countryQuery);
+        return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> mapToCountry(rs));
+    }
+
     public int count() {
         return jdbcTemplate.queryForObject("SELECT COUNT(*) FROM countries", Integer.class);
     }
@@ -96,10 +101,25 @@ public class CountryDao {
                         .withTableName("countries")
                         .usingGeneratedKeyColumns("id");
 
-        Map<String, Object> parameters = new HashMap<>();
+        /*Map<String, Object> parameters = new HashMap<>();
         parameters.put("name", name);
-        parameters.put("population", population);
-        return simpleJdbcInsert.executeAndReturnKey(parameters).longValue();
+        parameters.put("population", population);*/
+
+        SqlParameterSource params = new MapSqlParameterSource()
+                .addValue("name", name)
+                .addValue("population", population);
+
+        return simpleJdbcInsert.executeAndReturnKey(params).longValue();
+    }
+
+    public long insertWithSimpleJdbcInsert(Country country) {
+        SimpleJdbcInsert simpleJdbcInsert =
+                new SimpleJdbcInsert(jdbcTemplate.getDataSource())
+                        .withTableName("countries")
+                        .usingGeneratedKeyColumns("id");
+
+        SqlParameterSource params = new BeanPropertySqlParameterSource(country);
+        return simpleJdbcInsert.executeAndReturnKey(params).longValue();
     }
 
     public Integer callProcedure(String name) {

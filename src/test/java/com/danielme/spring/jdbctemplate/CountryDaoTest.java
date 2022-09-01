@@ -25,6 +25,7 @@ public class CountryDaoTest {
     private static final String COLOMBIA_NAME = "Colombia";
     private static final String TEST_NAME = "test";
     private static final String FUNC_PROC_NAME = "test";
+    private static final int POPULATION_TEST = 123456;
     private static final Long SPAIN_ID = 2L;
 
     @Autowired
@@ -47,14 +48,22 @@ public class CountryDaoTest {
 
     @Test
     public void testInsertQuery() {
-        countryDao.insertWithQuery(TEST_NAME, 123456);
+        countryDao.insertWithQuery(TEST_NAME, POPULATION_TEST);
 
         assertEquals(4, countryDao.count());
     }
 
     @Test
-    public void testInsert() {
-        long idReturned = countryDao.insertWithSimpleJdbcInsert(TEST_NAME, 123456);
+    public void testInsertAsParameters() {
+        long idReturned = countryDao.insertWithSimpleJdbcInsert(TEST_NAME, POPULATION_TEST);
+        long id = countryDao.findByName(TEST_NAME).get(0).getId();
+        assertEquals(idReturned, id);
+    }
+
+    @Test
+    public void testInsertAsObject() {
+        Country country = new Country(TEST_NAME, POPULATION_TEST);
+        long idReturned = countryDao.insertWithSimpleJdbcInsert(country);
         long id = countryDao.findByName(TEST_NAME).get(0).getId();
         assertEquals(idReturned, id);
     }
@@ -68,9 +77,20 @@ public class CountryDaoTest {
     }
 
     @Test
-    public void testFindByPopulation() {
+    public void testFindByPopulationWithParams() {
         List<Country> countries = countryDao.findByPopulation(45000000, 50000000);
 
+        asssertFindbyPopulation(countries);
+    }
+
+    @Test
+    public void testFindByPopulationWithObject() {
+        List<Country> countries = countryDao.findByPopulation(new CountryQuery(45000000, 50000000));
+
+        asssertFindbyPopulation(countries);
+    }
+
+    private void asssertFindbyPopulation(List<Country> countries) {
         assertEquals(2, countries.size());
         assertEquals(COLOMBIA_NAME, countries.get(0).getName());
         assertEquals(SPAIN_NAME, countries.get(1).getName());

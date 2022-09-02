@@ -1,16 +1,14 @@
 package com.danielme.spring.jdbctemplate;
 
 import org.springframework.jdbc.core.JdbcTemplate;
-import org.springframework.jdbc.core.namedparam.BeanPropertySqlParameterSource;
-import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.core.namedparam.*;
 import org.springframework.jdbc.core.simple.SimpleJdbcCall;
 import org.springframework.jdbc.core.simple.SimpleJdbcInsert;
 import org.springframework.stereotype.Repository;
 
 import java.sql.*;
 import java.util.*;
+import java.util.stream.Collectors;
 
 @Repository
 public class CountryDao {
@@ -93,6 +91,32 @@ public class CountryDao {
                     ps.setInt(2, country.getPopulation());
                 }
         );
+    }
+
+    public void insertBatch(List<Country> countries) {
+        String sql = "INSERT INTO countries (name, population) VALUES(?,?)";
+        List<Object[]> batchEntries = countries.stream()
+                .map(c -> new Object[]{c.getName(), c.getPopulation()})
+                .collect(Collectors.toList());
+        jdbcTemplate.batchUpdate(sql, batchEntries);
+    }
+
+    public void updateBatch(List<Country> countries, int batchSize) {
+        String sql = "UPDATE countries SET name = ?, population = ? WHERE id = ? ";
+
+        jdbcTemplate.batchUpdate(sql, countries, batchSize,
+                (PreparedStatement ps, Country country) -> {
+                    ps.setString(1, country.getName());
+                    ps.setInt(2, country.getPopulation());
+                    ps.setLong(3, country.getId());
+                }
+        );
+    }
+
+    public void updateBatchNamed(List<Country> countries) {
+        String sql = "UPDATE countries SET name = :name, population = :population WHERE id = :id";
+        SqlParameterSource[] batchParameters = SqlParameterSourceUtils.createBatch(countries.toArray());
+        namedParameterJdbcTemplate.batchUpdate(sql, batchParameters);
     }
 
     public long insertWithSimpleJdbcInsert(String name, int population) {

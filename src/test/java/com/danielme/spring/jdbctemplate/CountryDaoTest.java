@@ -11,7 +11,6 @@ import java.sql.SQLException;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Consumer;
-import java.util.function.Supplier;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -83,14 +82,14 @@ public class CountryDaoTest {
     public void testFindByPopulationWithParams() {
         List<Country> countries = countryDao.findByPopulation(45000000, 50000000);
 
-        asssertFindbyPopulation(countries);
+        assertFindByPopulation(countries);
     }
 
     @Test
     public void testFindByPopulationWithObject() {
         List<Country> countries = countryDao.findByPopulation(new CountryQuery(45000000, 50000000));
 
-        asssertFindbyPopulation(countries);
+        assertFindByPopulation(countries);
     }
 
     @Test
@@ -159,7 +158,7 @@ public class CountryDaoTest {
         System.out.println(System.currentTimeMillis() - init + " ms");
     }
 
-    private void asssertFindbyPopulation(List<Country> countries) {
+    private void assertFindByPopulation(List<Country> countries) {
         assertEquals(2, countries.size());
         assertEquals(COLOMBIA_NAME, countries.get(0).getName());
         assertEquals(SPAIN_NAME, countries.get(1).getName());

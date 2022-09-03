@@ -28,7 +28,9 @@ public class CountryDaoTest {
     private static final String FUNC_PROC_NAME = "test";
     private static final int POPULATION_TEST = 123456;
     private static final Long SPAIN_ID = 2L;
-    public static final int COUNTRIES_SIZE = 3;
+    private static final int COUNTRIES_SIZE = 3;
+    private static final int MIN_POPULATION = 45000000;
+    private static final int MAX_POPULATION = 50000000;
 
     @Autowired
     private CountryDao countryDao;
@@ -80,14 +82,14 @@ public class CountryDaoTest {
 
     @Test
     public void testFindByPopulationWithParams() {
-        List<Country> countries = countryDao.findByPopulation(45000000, 50000000);
+        List<Country> countries = countryDao.findByPopulation(MIN_POPULATION, MAX_POPULATION);
 
         assertFindByPopulation(countries);
     }
 
     @Test
     public void testFindByPopulationWithObject() {
-        List<Country> countries = countryDao.findByPopulation(new CountryQuery(45000000, 50000000));
+        List<Country> countries = countryDao.findByPopulation(new CountryQuery(MIN_POPULATION, MAX_POPULATION));
 
         assertFindByPopulation(countries);
     }

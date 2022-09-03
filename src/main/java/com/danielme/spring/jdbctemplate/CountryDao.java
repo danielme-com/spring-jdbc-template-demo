@@ -21,6 +21,8 @@ public class CountryDao {
         this.namedParameterJdbcTemplate = namedParameterJdbcTemplate;
     }
 
+
+    // PURE JDBC EXAMPLE
     public List<Country> findAllPureJdbc() throws SQLException {
         try (Connection connection = jdbcTemplate.getDataSource().getConnection();
              PreparedStatement ps = connection.prepareStatement("SELECT * FROM countries");) {
@@ -37,6 +39,15 @@ public class CountryDao {
         }
         return results;
     }
+
+    private Country mapToCountry(ResultSet rs) throws SQLException {
+        return new Country(
+                rs.getLong("id"),
+                rs.getString("name"),
+                rs.getInt("population"));
+    }
+    //////
+
 
     public List<Country> findAll() {
         return jdbcTemplate.query("SELECT * FROM countries ORDER BY NAME", (rs, rowNum) -> mapToCountry(rs));
@@ -167,12 +178,5 @@ public class CountryDao {
             return new Country(rs.getLong("id"), rs.getString("name"), rs.getInt("population"));
         }
     }*/
-
-    private Country mapToCountry(ResultSet rs) throws SQLException {
-        return new Country(
-                rs.getLong("id"),
-                rs.getString("name"),
-                rs.getInt("population"));
-    }
 
 }

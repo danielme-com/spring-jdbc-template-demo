@@ -1,11 +1,11 @@
 package com.danielme.spring.jdbctemplate;
 
-import org.junit.Test;
-import org.junit.runner.RunWith;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.jdbc.Sql;
-import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
 
 import java.sql.SQLException;
 import java.util.List;
@@ -14,13 +14,14 @@ import java.util.function.Consumer;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
-@RunWith(SpringJUnit4ClassRunner.class)
+
+@ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {AppConfiguration.class})
 @Sql("/reset.sql")
-public class CountryDaoTest {
+class CountryDaoTest {
 
     private static final String SPAIN_NAME = "Spain";
     private static final String COLOMBIA_NAME = "Colombia";
@@ -36,36 +37,36 @@ public class CountryDaoTest {
     private CountryDao countryDao;
 
     @Test
-    public void testAllJdbcTemplate() {
+    void testAllJdbcTemplate() {
         assertEquals(3, countryDao.findAll().size());
     }
 
     @Test
-    public void testAllJdbc() throws SQLException {
+    void testAllJdbc() throws SQLException {
         assertEquals(COUNTRIES_SIZE, countryDao.findAllPureJdbc().size());
     }
 
     @Test
-    public void testDelete() {
+    void testDelete() {
         assertEquals(COUNTRIES_SIZE, countryDao.deleteAll());
     }
 
     @Test
-    public void testInsertQuery() {
+    void testInsertQuery() {
         countryDao.insertWithQuery(TEST_NAME, POPULATION_TEST);
 
         assertEquals(COUNTRIES_SIZE + 1, countryDao.count());
     }
 
     @Test
-    public void testInsertAsParameters() {
+    void testInsertAsParameters() {
         long idReturned = countryDao.insertWithSimpleJdbcInsert(TEST_NAME, POPULATION_TEST);
         long id = countryDao.findByName(TEST_NAME).get(0).getId();
         assertEquals(idReturned, id);
     }
 
     @Test
-    public void testInsertAsObject() {
+    void testInsertAsObject() {
         Country country = new Country(TEST_NAME, POPULATION_TEST);
         long idReturned = countryDao.insertWithSimpleJdbcInsert(country);
         long id = countryDao.findByName(TEST_NAME).get(0).getId();
@@ -73,7 +74,7 @@ public class CountryDaoTest {
     }
 
     @Test
-    public void testFindByName() {
+    void testFindByName() {
         List<Country> countries = countryDao.findByName(SPAIN_NAME);
 
         assertEquals(1, countries.size());
@@ -81,21 +82,21 @@ public class CountryDaoTest {
     }
 
     @Test
-    public void testFindByPopulationWithParams() {
+    void testFindByPopulationWithParams() {
         List<Country> countries = countryDao.findByPopulation(MIN_POPULATION, MAX_POPULATION);
 
         assertFindByPopulation(countries);
     }
 
     @Test
-    public void testFindByPopulationWithObject() {
+    void testFindByPopulationWithObject() {
         List<Country> countries = countryDao.findByPopulation(new CountryQuery(MIN_POPULATION, MAX_POPULATION));
 
         assertFindByPopulation(countries);
     }
 
     @Test
-    public void testFindById() {
+    void testFindById() {
         Optional<Country> countryOpt = countryDao.findById(SPAIN_ID);
 
         assertTrue(countryOpt.isPresent());
@@ -103,37 +104,37 @@ public class CountryDaoTest {
     }
 
     @Test
-    public void testProcedure() {
+    void testProcedure() {
         assertEquals(0, (int) countryDao.callProcedure(FUNC_PROC_NAME));
     }
 
     @Test
-    public void testFunction() {
+    void testFunction() {
         assertEquals(0, (int) countryDao.callFunction(FUNC_PROC_NAME));
     }
 
     @Test
-    public void testCount() {
+    void testCount() {
         assertEquals(COUNTRIES_SIZE, countryDao.count());
     }
 
     @Test
-    public void testBatchInsertWithSize() {
+    void testBatchInsertWithSize() {
         testBatchInsert((countries) -> countryDao.insertBatch(countries, 100));
     }
 
     @Test
-    public void testBatchInsertNoSize() {
+    void testBatchInsertNoSize() {
         testBatchInsert((countries) -> countryDao.insertBatch(countries));
     }
 
     @Test
-    public void testBatchUpdate() {
+    void testBatchUpdate() {
         testBatchUpdate((countries) -> countryDao.updateBatch(countries, 100));
     }
 
     @Test
-    public void testBatchUpdateNamed() {
+    void testBatchUpdateNamed() {
         testBatchUpdate((countries) -> countryDao.updateBatchNamed(countries));
     }
 

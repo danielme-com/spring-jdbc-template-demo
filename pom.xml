@@ -9,7 +9,7 @@
 	<url>https://danielme.com/2017/10/02/spring-jdbc-template-simplificando-el-uso-de-sql/</url>
 	<inceptionYear>2017</inceptionYear>
 
-	<description>Spring jdbctemplate demo</description>
+	<description>Spring JDBC Template demo</description>
 
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

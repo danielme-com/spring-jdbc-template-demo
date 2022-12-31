@@ -15,7 +15,7 @@ import javax.sql.DataSource;
 
 @Configuration
 @PropertySource("classpath:db.properties")
-@ComponentScan("com.danielme.spring")
+@ComponentScan
 public class AppConfiguration {
 
     @Bean(destroyMethod = "close")

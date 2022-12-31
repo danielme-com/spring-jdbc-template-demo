@@ -20,7 +20,7 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 
 @ExtendWith(SpringExtension.class)
 @ContextConfiguration(classes = {AppConfiguration.class})
-@Sql("/reset.sql")
+@Sql("/dataset.sql")
 class CountryDaoTest {
 
     private static final String SPAIN_NAME = "Spain";
@@ -82,7 +82,14 @@ class CountryDaoTest {
     }
 
     @Test
-    void testFindByPopulationWithParams() {
+    void testFindByPopulationWithParameterTemplate() {
+        List<Country> countries = countryDao.findByPopulationWithNamedParameterTemplate(MIN_POPULATION, MAX_POPULATION);
+
+        assertFindByPopulation(countries);
+    }
+
+    @Test
+    void testFindByPopulation() {
         List<Country> countries = countryDao.findByPopulation(MIN_POPULATION, MAX_POPULATION);
 
         assertFindByPopulation(countries);

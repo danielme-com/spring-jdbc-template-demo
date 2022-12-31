@@ -25,7 +25,7 @@ public class CountryDao {
     // PURE JDBC EXAMPLE
     public List<Country> findAllPureJdbc() throws SQLException {
         try (Connection connection = jdbcTemplate.getDataSource().getConnection();
-             PreparedStatement ps = connection.prepareStatement("SELECT * FROM countries");) {
+             PreparedStatement ps = connection.prepareStatement("SELECT * FROM countries")) {
             ResultSet resultSet = ps.executeQuery();
             return mapResults(resultSet);
         }
@@ -64,13 +64,23 @@ public class CountryDao {
         return Optional.ofNullable(country);
     }
 
-    public List<Country> findByPopulation(int minPopulation, int maxPopulation) {
+    public List<Country> findByPopulationWithNamedParameterTemplate(int minPopulation, int maxPopulation) {
         String sql = "SELECT * FROM countries WHERE population " +
                 "BETWEEN :minPopulation AND :maxPopulation ORDER BY name";
         Map<String, Integer> params = new HashMap<>();
         params.put("minPopulation", minPopulation);
         params.put("maxPopulation", maxPopulation);
         return namedParameterJdbcTemplate.query(sql, params, (rs, rowNum) -> mapToCountry(rs));
+    }
+
+    public List<Country> findByPopulation(int minPopulation, int maxPopulation) {
+        String sql = "SELECT * FROM countries WHERE population " +
+                "BETWEEN ? AND ? ORDER BY name";
+
+        return jdbcTemplate.query(
+                sql,
+                (rs, rowNum) -> mapToCountry(rs),
+                minPopulation, maxPopulation);
     }
 
     public List<Country> findByPopulation(CountryQuery countryQuery) {
@@ -126,7 +136,7 @@ public class CountryDao {
 
     public void updateBatchNamed(List<Country> countries) {
         String sql = "UPDATE countries SET name = :name, population = :population WHERE id = :id";
-        SqlParameterSource[] batchParameters = SqlParameterSourceUtils.createBatch(countries.toArray());
+        SqlParameterSource[] batchParameters = SqlParameterSourceUtils.createBatch(countries);
         namedParameterJdbcTemplate.batchUpdate(sql, batchParameters);
     }
 

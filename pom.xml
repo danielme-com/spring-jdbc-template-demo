@@ -15,11 +15,11 @@
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<java.version>11</java.version>
 
-		<hikari.version>3.4.5</hikari.version>
-		<spring.version>5.3.22</spring.version>
-		<log4jframework.version>2.18.0</log4jframework.version>
+		<hikari.version>5.0.1</hikari.version>
+		<spring.version>5.3.24</spring.version>
+		<log4jframework.version>2.19.0</log4jframework.version>
 		<mysql.driver.version>8.0.29</mysql.driver.version>
-		<junit.version>5.9.0</junit.version>
+		<junit.version>5.9.1</junit.version>
 		<maven.compiler.plugin.version>3.10.1</maven.compiler.plugin.version>
 		<maven.surefire.plugin.version>2.22.2</maven.surefire.plugin.version>
 	</properties>

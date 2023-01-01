@@ -52,6 +52,16 @@ class CountryDaoTest {
     }
 
     @Test
+    void testUpdatePopulation() {
+        int newPopulation = 47_432_805;
+
+        int updateCount = countryDao.updatePopulation(SPAIN_ID, newPopulation);
+
+        assertEquals(1, updateCount);
+        assertEquals(newPopulation, countryDao.findById(SPAIN_ID).get().getPopulation());
+    }
+
+    @Test
     void testInsertQuery() {
         countryDao.insertWithQuery(TEST_NAME, POPULATION_TEST);
 

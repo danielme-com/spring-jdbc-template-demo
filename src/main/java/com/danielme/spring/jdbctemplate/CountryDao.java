@@ -98,6 +98,10 @@ public class CountryDao {
         return jdbcTemplate.update("DELETE from countries");
     }
 
+    public int updatePopulation(Long id, int newPopulation) {
+        return jdbcTemplate.update("UPDATE countries SET population = ? WHERE id = ?", newPopulation, id);
+    }
+
     public void insertWithQuery(String name, int population) {
         String sql = "INSERT INTO countries (name, population) VALUES(?,?)";
         jdbcTemplate.update(sql, name, population);
